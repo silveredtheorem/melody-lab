@@ -1,0 +1,13 @@
+{
+  "name": "melody-lab",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "worker",
+    "shared"
+  ],
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
