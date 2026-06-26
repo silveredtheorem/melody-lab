@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  passwordHash  String
+  createdAt     DateTime @default(now())
+
+  ownedProjects   Project[]
+  projectMembers  ProjectMember[]
+  commits         Commit[]
+  layers          Layer[]
+  refreshTokens   RefreshToken[]
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  owner    User            @relation(fields: [ownerId], references: [id])
+  members  ProjectMember[]
+  branches Branch[]
+  commits  Commit[]
+}
+
+model ProjectMember {
+  id        String            @id @default(uuid())
+  projectId String
+  userId    String
+  role      ProjectMemberRole
+  joinedAt  DateTime          @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+}
+
+enum ProjectMemberRole {
+  OWNER
+  COLLABORATOR
+}
+
+model Branch {
+  id           String   @id @default(uuid())
+  projectId    String
+  name         String
+  headCommitId String?
+  createdAt    DateTime @default(now())
+
+  project    Project  @relation(fields: [projectId], references: [id])
+  headCommit Commit?  @relation("BranchHead", fields: [headCommitId], references: [id])
+
+  sourceMergeRequests MergeRequest[] @relation("SourceBranch")
+  targetMergeRequests MergeRequest[] @relation("TargetBranch")
+
+  @@unique([projectId, name])
+}
+
+model Commit {
+  id            String   @id @default(uuid())
+  projectId     String
+  parentId      String?
+  mergeParentId String?
+  authorId      String
+  message       String
+  createdAt     DateTime @default(now())
+
+  project      Project  @relation(fields: [projectId], references: [id])
+  author       User     @relation(fields: [authorId], references: [id])
+  parent       Commit?  @relation("CommitParent", fields: [parentId], references: [id])
+  children     Commit[] @relation("CommitParent")
+  mergeParent  Commit?  @relation("CommitMergeParent", fields: [mergeParentId], references: [id])
+  mergeChildren Commit[] @relation("CommitMergeParent")
+  layers       Layer[]
+
+  branchHeads             Branch[]       @relation("BranchHead")
+  mergeRequestsAsAncestor MergeRequest[] @relation("CommonAncestor")
+}
+
+model Layer {
+  id           String     @id @default(uuid())
+  commitId     String
+  s3Key        String
+  instrument   String
+  durationMs   Int
+  startMs      Int        @default(0)
+  bpm          Float?
+  keySignature String?
+  sourceType   SourceType
+  createdBy    String?
+  createdAt    DateTime   @default(now())
+
+  commit   Commit @relation(fields: [commitId], references: [id])
+  creator  User?  @relation(fields: [createdBy], references: [id])
+
+  ourConflicts   MergeConflict[] @relation("OurLayer")
+  theirConflicts MergeConflict[] @relation("TheirLayer")
+}
+
+enum SourceType {
+  HUMAN
+  AI_GENERATED
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model MergeRequest {
+  id               String             @id @default(uuid())
+  projectId        String
+  sourceBranchId   String
+  targetBranchId   String
+  commonAncestorId String?
+  status           MergeRequestStatus
+  createdBy        String
+  createdAt        DateTime           @default(now())
+
+  sourceBranch   Branch   @relation("SourceBranch", fields: [sourceBranchId], references: [id])
+  targetBranch   Branch   @relation("TargetBranch", fields: [targetBranchId], references: [id])
+  commonAncestor Commit?  @relation("CommonAncestor", fields: [commonAncestorId], references: [id])
+  conflicts      MergeConflict[]
+}
+
+enum MergeRequestStatus {
+  OPEN
+  RESOLVED
+  CANCELLED
+}
+
+model MergeConflict {
+  id             String              @id @default(uuid())
+  mergeRequestId String
+  instrument     String
+  ourLayerId     String
+  theirLayerId   String
+  resolution     ConflictResolution?
+  resolvedAt     DateTime?
+
+  mergeRequest MergeRequest @relation(fields: [mergeRequestId], references: [id])
+  ourLayer     Layer        @relation("OurLayer", fields: [ourLayerId], references: [id])
+  theirLayer   Layer        @relation("TheirLayer", fields: [theirLayerId], references: [id])
+}
+
+enum ConflictResolution {
+  OURS
+  THEIRS
+  BOTH
+}
