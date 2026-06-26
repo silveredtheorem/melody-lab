@@ -3,6 +3,9 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import authRoutes from './routes/auth.routes'
+import projectRoutes from './routes/project.routes'
+import branchRoutes from './routes/branch.routes'
+import commitRoutes from './routes/commit.routes'
 
 // Validate required environment variables
 if (!process.env.ACCESS_TOKEN_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
@@ -28,9 +31,12 @@ app.get('/health', (req, res) => {
 })
 
 app.use('/auth', authRoutes)
+app.use('/projects', projectRoutes)
+app.use('/', branchRoutes)
+app.use('/', commitRoutes)
 
 // Error handling middleware (must be last)
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Error:', err)
   res.status(err.status || 500).json({
     error: err.message || 'Internal server error'

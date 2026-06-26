@@ -1,0 +1,70 @@
+import { prisma } from '../lib/prisma';
+
+export async function createProject(name: string, ownerId: string) {
+  const project = await prisma.project.create({
+    data: {
+      name,
+      ownerId,
+      members: {
+        create: {
+          userId: ownerId,
+          role: 'OWNER',
+        },
+      },
+      branches: {
+        create: {
+          name: 'main',
+        },
+      },
+    },
+    include: {
+      branches: true,
+    },
+  });
+
+  const defaultBranch = project.branches.find((b) => b.name === 'main');
+
+  return {
+    ...project,
+    defaultBranch,
+  };
+}
+
+export async function getProject(projectId: string, userId: string) {
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: {
+      branches: true,
+      members: true,
+    },
+  });
+
+  if (!project) {
+    throw new Error('NOT_FOUND');
+  }
+
+  const isMember = project.members.some((m) => m.userId === userId);
+  if (!isMember) {
+    throw new Error('FORBIDDEN');
+  }
+
+  return project;
+}
+
+export async function listProjects(userId: string) {
+  const projects = await prisma.project.findMany({
+    where: {
+      members: {
+        some: {
+          userId,
+        },
+      },
+    },
+    include: {
+      branches: true,
+      members: true,
+    },
+  });
+
+  return projects;
+}
