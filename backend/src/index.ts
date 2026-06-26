@@ -1,14 +1,43 @@
-import express from 'express';
+import 'dotenv/config'
+import express from 'express'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import authRoutes from './routes/auth.routes'
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+// Validate required environment variables
+if (!process.env.ACCESS_TOKEN_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+  throw new Error('Missing required environment variables: ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET')
+}
+if (!process.env.DATABASE_URL) {
+  throw new Error('Missing required environment variable: DATABASE_URL')
+}
 
-app.use(express.json());
+const app = express()
 
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// CORS configuration
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true
+}))
 
+app.use(express.json())
+app.use(cookieParser())
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' })
+})
+
+app.use('/auth', authRoutes)
+
+// Error handling middleware (must be last)
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Error:', err)
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal server error'
+  })
+})
+
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  console.log(`Server running on http://localhost:${PORT}`)
+})

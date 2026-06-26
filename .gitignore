@@ -106,3 +106,6 @@ web_modules/
 .dynamodb/
 .firebase/
 .tern-port
+
+# Prisma generated client
+**/generated/prisma/
