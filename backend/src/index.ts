@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import http from 'node:http'
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -6,8 +7,13 @@ import authRoutes from './routes/auth.routes'
 import projectRoutes from './routes/project.routes'
 import branchRoutes from './routes/branch.routes'
 import commitRoutes from './routes/commit.routes'
+import storageRoutes from './routes/storage.routes'
+import { initSocket } from './lib/socket'
 
 // Validate required environment variables
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing required environment variables: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+}
 if (!process.env.ACCESS_TOKEN_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
   throw new Error('Missing required environment variables: ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET')
 }
@@ -34,6 +40,7 @@ app.use('/auth', authRoutes)
 app.use('/projects', projectRoutes)
 app.use('/', branchRoutes)
 app.use('/', commitRoutes)
+app.use('/storage', storageRoutes)
 
 // Error handling middleware (must be last)
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -43,7 +50,10 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   })
 })
 
+const server = http.createServer(app)
+initSocket(server)
+
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
 })

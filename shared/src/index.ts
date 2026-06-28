@@ -13,3 +13,4 @@ export * from './schemas/auth.schemas';
 export * from './schemas/project.schemas';
 export * from './schemas/branch.schemas';
 export * from './schemas/commit.schemas';
+export * from './schemas/storage.schemas';

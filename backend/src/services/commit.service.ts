@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import type { CreateCommitInput } from '@melody-lab/shared';
+import { emitCommitCreated, emitLayerAdded } from '../lib/socket';
 
 export async function createCommit(
   projectId: string,
@@ -59,6 +60,11 @@ export async function createCommit(
 
     return newCommit;
   });
+
+  emitCommitCreated(projectId, commit)
+  for (const layer of commit.layers) {
+    emitLayerAdded(projectId, layer)
+  }
 
   return commit;
 }
