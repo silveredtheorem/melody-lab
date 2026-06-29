@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppShell } from '../components/AppShellContext'
 import { useToast } from '../components/ToastProvider'
@@ -297,20 +297,24 @@ export function ProjectHomePage() {
   const [notFound, setNotFound] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
 
-  const load = useCallback(async () => {
+  useEffect(() => {
     if (!projectId) return
-    try {
-      const data = await apiGetProject(projectId)
-      setProject(toProjectMeta(data))
-      setBranches(data.branches.map(toBranch))
-    } catch {
-      setNotFound(true)
-    } finally {
-      setLoading(false)
-    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const data = await apiGetProject(projectId)
+        if (cancelled) return
+        setProject(toProjectMeta(data))
+        setBranches(data.branches.map(toBranch))
+      } catch {
+        if (cancelled) return
+        setNotFound(true)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
   }, [projectId])
-
-  useEffect(() => { load() }, [load])
 
   useEffect(() => {
     if (project?.name) setBreadcrumb(project.name)

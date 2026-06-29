@@ -93,10 +93,6 @@ function ProfileSection() {
   const [name, setName] = useState(user?.name ?? '')
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    if (user?.name) setName(user.name)
-  }, [user?.name])
-
   async function handleSave() {
     if (!name.trim()) return
     setSaving(true)
@@ -273,7 +269,7 @@ function NotificationsSection() {
     collaboratorJoined: false,
   })
   const [flashSaved, setFlashSaved] = useState(false)
-  const flashTimer = useRef<ReturnType<typeof setTimeout>>()
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => () => clearTimeout(flashTimer.current), [])
 

@@ -1,9 +1,13 @@
 import { useAuthStore } from '../stores/auth.store'
 
 export class ApiError extends Error {
-  constructor(public status: number, public body: { error: string }) {
+  status: number
+  body: { error: string }
+  constructor(status: number, body: { error: string }) {
     super(body.error)
     this.name = 'ApiError'
+    this.status = status
+    this.body = body
   }
 }
 
@@ -75,7 +79,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     let body = { error: 'Request failed' }
-    try { body = await res.json() } catch {}
+    try { body = await res.json() } catch { /* ignore parse error */ }
     throw new ApiError(res.status, body)
   }
 
@@ -112,7 +116,7 @@ export async function apiRefresh(): Promise<string | null> {
 export async function apiLogout() {
   try {
     await apiFetch('/auth/logout', { method: 'POST' })
-  } catch {}
+  } catch { /* ignore logout errors */ }
   useAuthStore.getState().clearAuth()
 }
 
