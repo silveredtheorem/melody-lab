@@ -3,6 +3,8 @@ import http from 'node:http'
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import authRoutes from './routes/auth.routes'
 import projectRoutes from './routes/project.routes'
 import branchRoutes from './routes/branch.routes'
@@ -26,6 +28,8 @@ if (!process.env.DATABASE_URL) {
 
 const app = express()
 
+app.use(helmet())
+
 // CORS configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
@@ -35,11 +39,19 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser())
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, try again later' },
+})
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
-app.use('/auth', authRoutes)
+app.use('/auth', authLimiter, authRoutes)
 app.use('/projects', projectRoutes)
 app.use('/', branchRoutes)
 app.use('/', commitRoutes)
