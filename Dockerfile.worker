@@ -1,0 +1,39 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Copy root workspace files
+COPY package.json package-lock.json ./
+
+# Copy shared package
+COPY shared/package.json ./shared/
+COPY shared/src ./shared/src
+COPY shared/tsconfig.json ./shared/
+
+# Copy backend package (worker imports Prisma client from backend/generated)
+COPY backend/package.json ./backend/
+COPY backend/prisma ./backend/prisma
+COPY backend/prisma.config.ts ./backend/
+
+# Copy worker package
+COPY worker/package.json ./worker/
+COPY worker/src ./worker/src
+COPY worker/tsconfig.json ./worker/
+
+# Create stub dir for frontend so npm install doesn't fail
+RUN mkdir -p frontend
+COPY frontend/package.json ./frontend/
+
+# Install all workspace dependencies
+RUN npm install --workspace=shared --workspace=backend --workspace=worker
+
+# Generate Prisma client (worker uses backend's generated client)
+WORKDIR /app/backend
+RUN npx prisma generate
+
+# Build shared
+WORKDIR /app/shared
+RUN npm run build
+
+WORKDIR /app/worker
+CMD ["npm", "start"]
