@@ -1,0 +1,11 @@
+name: Deploy Check
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-notice:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploying to Railway and Vercel automatically via git push"
