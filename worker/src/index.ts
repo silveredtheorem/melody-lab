@@ -45,7 +45,10 @@ async function processAIJob(data: AIGenerationJob): Promise<void> {
 
   await fetch(`${BACKEND_URL}/internal/layer-updated`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(process.env.INTERNAL_SECRET ? { 'x-internal-secret': process.env.INTERNAL_SECRET } : {}),
+    },
     body: JSON.stringify({ layerId: data.layerId, projectId: data.projectId }),
   })
 }
