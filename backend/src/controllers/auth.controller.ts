@@ -9,6 +9,7 @@ const COOKIE_OPTIONS: import('express').CookieOptions = {
   secure: isProduction,
   sameSite: isProduction ? 'none' : 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  partitioned: isProduction,
 }
 
 export async function register(req: Request, res: Response) {
