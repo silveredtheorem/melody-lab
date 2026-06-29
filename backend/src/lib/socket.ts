@@ -1,8 +1,8 @@
 import { Server } from 'socket.io'
 import { createAdapter } from '@socket.io/redis-adapter'
 import { Server as HttpServer } from 'http'
-import redis, { redisSub } from './redis'
-import { verifyAccessToken } from './jwt'
+import redis, { redisSub } from './redis.js'
+import { verifyAccessToken } from './jwt.js'
 
 let io: Server
 

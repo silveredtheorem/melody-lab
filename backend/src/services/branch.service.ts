@@ -1,4 +1,4 @@
-import { prisma } from '../lib/prisma';
+import { prisma } from '../lib/prisma.js';
 
 export async function createBranch(projectId: string, name: string, userId: string, fromBranch?: string) {
   const member = await prisma.projectMember.findUnique({

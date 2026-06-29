@@ -1,6 +1,6 @@
-import { prisma } from '../lib/prisma';
+import { prisma } from '../lib/prisma.js';
 import type { CreateCommitInput } from '@melody-lab/shared';
-import { emitCommitCreated, emitLayerAdded } from '../lib/socket';
+import { emitCommitCreated, emitLayerAdded } from '../lib/socket.js';
 
 export async function createCommit(
   projectId: string,
@@ -32,9 +32,9 @@ export async function createCommit(
     const existingLayers = await prisma.layer.findMany({
       where: { commitId: branch.headCommitId },
     });
-    const existingByInstrument = new Map(existingLayers.map((l) => [l.instrument, l]));
+    const existingByInstrument = new Map(existingLayers.map((l: any) => [l.instrument, l]));
     for (const layer of input.layers) {
-      const existing = existingByInstrument.get(layer.instrument);
+      const existing = existingByInstrument.get(layer.instrument) as any;
       if (existing && existing.s3Key !== layer.s3Key) {
         const err = new Error('DUPLICATE_INSTRUMENT');
         (err as any).instrument = layer.instrument;
@@ -43,7 +43,7 @@ export async function createCommit(
     }
   }
 
-  const commit = await prisma.$transaction(async (tx) => {
+  const commit = await prisma.$transaction(async (tx: any) => {
     const parentLayers = branch.headCommitId
       ? await tx.layer.findMany({ where: { commitId: branch.headCommitId } })
       : [];
@@ -51,8 +51,8 @@ export async function createCommit(
     const newInstruments = new Set(input.layers.map((l) => l.instrument));
 
     const carriedLayers = parentLayers
-      .filter((l) => !newInstruments.has(l.instrument))
-      .map((l) => ({
+      .filter((l: any) => !newInstruments.has(l.instrument))
+      .map((l: any) => ({
         s3Key: l.s3Key,
         instrument: l.instrument,
         durationMs: l.durationMs,
@@ -149,14 +149,14 @@ export async function getCommitHistory(branchId: string, userId: string) {
     ORDER BY "createdAt" DESC
   `;
 
-  const authorIds = [...new Set(commits.map((c) => c.authorId as string))];
+  const authorIds = [...new Set(commits.map((c: any) => c.authorId as string))];
   const authors = await prisma.user.findMany({
     where: { id: { in: authorIds } },
     select: { id: true, name: true },
   });
-  const authorMap = Object.fromEntries(authors.map((u) => [u.id, u]));
+  const authorMap = Object.fromEntries(authors.map((u: { id: string; name: string }) => [u.id, u]));
 
-  return commits.map((c) => ({ ...c, author: authorMap[c.authorId] ?? null }));
+  return commits.map((c: any) => ({ ...c, author: authorMap[c.authorId] ?? null }));
 }
 
 export async function getCommit(commitId: string, userId: string) {

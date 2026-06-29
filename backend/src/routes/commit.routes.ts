@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import * as commitController from '../controllers/commit.controller';
-import { requireAuth } from '../middleware/auth.middleware';
-import { validate } from '../middleware/validate';
+import * as commitController from '../controllers/commit.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
+import { validate } from '../middleware/validate.js';
 import { CreateCommitSchema } from '@melody-lab/shared';
 
 const router = Router({ mergeParams: true });

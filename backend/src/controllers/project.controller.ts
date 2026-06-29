@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as projectService from '../services/project.service';
+import * as projectService from '../services/project.service.js';
 
 export async function createProject(req: Request, res: Response) {
   try {

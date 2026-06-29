@@ -1,6 +1,6 @@
-import { prisma } from '../lib/prisma'
-import { findLCA } from './lca.service'
-import { emitCommitCreated, emitLayerAdded } from '../lib/socket'
+import { prisma } from '../lib/prisma.js'
+import { findLCA } from './lca.service.js'
+import { emitCommitCreated, emitLayerAdded } from '../lib/socket.js'
 
 type LayerRow = {
   id: string
@@ -175,7 +175,7 @@ export async function completeMerge(mergeRequestId: string, userId: string) {
   })
   if (!member) throw new Error('FORBIDDEN')
 
-  if (mergeRequest.conflicts.some((c) => c.resolution === null)) {
+  if (mergeRequest.conflicts.some((c: any) => c.resolution === null)) {
     throw new Error('UNRESOLVED_CONFLICTS')
   }
 
@@ -190,7 +190,7 @@ export async function completeMerge(mergeRequestId: string, userId: string) {
 
   const sourceByInstrument = indexByInstrument(sourceLayers as LayerRow[])
   const targetByInstrument = indexByInstrument(targetLayers as LayerRow[])
-  const conflictByInstrument = new Map(mergeRequest.conflicts.map((c) => [c.instrument, c]))
+  const conflictByInstrument = new Map(mergeRequest.conflicts.map((c: any) => [c.instrument, c]))
 
   const allInstruments = new Set([
     ...sourceByInstrument.keys(),
@@ -200,7 +200,7 @@ export async function completeMerge(mergeRequestId: string, userId: string) {
   const finalLayers: LayerRow[] = []
 
   for (const instrument of allInstruments) {
-    const conflict = conflictByInstrument.get(instrument)
+    const conflict: any = conflictByInstrument.get(instrument)
     if (conflict) {
       if (conflict.resolution === 'OURS') {
         finalLayers.push(conflict.ourLayer as LayerRow)
@@ -223,7 +223,7 @@ export async function completeMerge(mergeRequestId: string, userId: string) {
     }
   }
 
-  const mergeCommit = await prisma.$transaction(async (tx) => {
+  const mergeCommit = await prisma.$transaction(async (tx: any) => {
     const commit = await tx.commit.create({
       data: {
         projectId: mergeRequest.projectId,

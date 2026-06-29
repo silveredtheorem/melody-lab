@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import * as mergeController from '../controllers/merge.controller'
-import { requireAuth } from '../middleware/auth.middleware'
-import { validate } from '../middleware/validate'
+import * as mergeController from '../controllers/merge.controller.js'
+import { requireAuth } from '../middleware/auth.middleware.js'
+import { validate } from '../middleware/validate.js'
 import { CreateMergeRequestSchema, ResolveConflictSchema } from '@melody-lab/shared'
 
 const router = Router({ mergeParams: true })

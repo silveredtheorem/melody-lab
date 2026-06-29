@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import { prisma } from '../lib/prisma'
-import { emitLayerUpdated } from '../lib/socket'
+import { prisma } from '../lib/prisma.js'
+import { emitLayerUpdated } from '../lib/socket.js'
 
 const router = Router()
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import * as storageService from '../services/storage.service'
+import * as storageService from '../services/storage.service.js'
 
 export async function getUploadUrl(req: Request, res: Response) {
   try {

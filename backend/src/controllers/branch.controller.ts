@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as branchService from '../services/branch.service';
+import * as branchService from '../services/branch.service.js';
 
 export async function createBranch(req: Request, res: Response) {
   try {

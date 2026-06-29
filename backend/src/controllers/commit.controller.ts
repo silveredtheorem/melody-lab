@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as commitService from '../services/commit.service';
+import * as commitService from '../services/commit.service.js';
 
 export async function createCommit(req: Request, res: Response) {
   try {

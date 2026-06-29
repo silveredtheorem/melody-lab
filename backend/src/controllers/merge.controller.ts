@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import * as mergeService from '../services/merge.service'
+import * as mergeService from '../services/merge.service.js'
 
 function handleError(err: any, res: Response) {
   if (err.message === 'FORBIDDEN') return res.status(403).json({ error: 'Access denied' })

@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import * as authController from '../controllers/auth.controller'
-import { validate } from '../middleware/validate'
-import { RegisterSchema, LoginSchema } from '@melody-lab/shared/src/schemas/auth.schemas'
-import { requireAuth } from '../middleware/auth.middleware'
+import * as authController from '../controllers/auth.controller.js'
+import { validate } from '../middleware/validate.js'
+import { RegisterSchema, LoginSchema } from '@melody-lab/shared'
+import { requireAuth } from '../middleware/auth.middleware.js'
 
 const router = Router()
 

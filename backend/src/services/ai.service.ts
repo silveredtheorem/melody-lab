@@ -1,5 +1,5 @@
-import { prisma } from '../lib/prisma'
-import { enqueueAIGeneration } from '../lib/queue'
+import { prisma } from '../lib/prisma.js'
+import { enqueueAIGeneration } from '../lib/queue.js'
 
 export async function requestAIGeneration(
   projectId: string,

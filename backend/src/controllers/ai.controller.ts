@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import * as aiService from '../services/ai.service'
+import * as aiService from '../services/ai.service.js'
 
 export async function requestGeneration(req: Request, res: Response) {
   try {

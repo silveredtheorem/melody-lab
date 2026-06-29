@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import { prisma } from '../lib/prisma'
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../lib/jwt'
+import { prisma } from '../lib/prisma.js'
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../lib/jwt.js'
 
 const SALT_ROUNDS = 12
 

@@ -1,4 +1,4 @@
-import { prisma } from '../lib/prisma';
+import { prisma } from '../lib/prisma.js';
 
 export async function createProject(name: string, ownerId: string) {
   const project = await prisma.project.create({
@@ -23,7 +23,7 @@ export async function createProject(name: string, ownerId: string) {
     },
   });
 
-  const defaultBranch = project.branches.find((b) => b.name === 'main');
+  const defaultBranch = project.branches.find((b: any) => b.name === 'main');
 
   return {
     ...project,
@@ -44,7 +44,7 @@ export async function getProject(projectId: string, userId: string) {
     throw new Error('NOT_FOUND');
   }
 
-  const isMember = project.members.some((m) => m.userId === userId);
+  const isMember = project.members.some((m: any) => m.userId === userId);
   if (!isMember) {
     throw new Error('FORBIDDEN');
   }

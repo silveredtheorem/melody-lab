@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import * as branchController from '../controllers/branch.controller';
-import { requireAuth } from '../middleware/auth.middleware';
-import { validate } from '../middleware/validate';
+import * as branchController from '../controllers/branch.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
+import { validate } from '../middleware/validate.js';
 import { CreateBranchSchema } from '@melody-lab/shared';
 
 const router = Router({ mergeParams: true });
