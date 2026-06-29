@@ -25,8 +25,11 @@ COPY worker/package.json ./worker/
 # Install all workspace dependencies
 RUN npm install --workspace=shared --workspace=backend
 
-# Build shared then backend
+# Generate Prisma client (needed for tsc to resolve types)
 WORKDIR /app/backend
+RUN npx prisma generate
+
+# Build shared then backend
 RUN npm run build
 
 EXPOSE 3000
