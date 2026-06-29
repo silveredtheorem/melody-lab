@@ -13,11 +13,11 @@ export interface AIGenerationJob {
 }
 
 export const aiGenerationQueue = new Queue<AIGenerationJob>('ai-generation', {
-  connection: redis,
+  connection: redis as any,
 })
 
 export async function enqueueAIGeneration(data: AIGenerationJob) {
-  return aiGenerationQueue.add('generate', data, {
+  return aiGenerationQueue.add('generate' as any, data, {
     attempts: 3,
     backoff: {
       type: 'exponential',

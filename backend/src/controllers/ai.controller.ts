@@ -3,7 +3,7 @@ import * as aiService from '../services/ai.service'
 
 export async function requestGeneration(req: Request, res: Response) {
   try {
-    const projectId = req.params.projectId
+    const projectId = req.params.projectId as string
     const userId = res.locals.userId as string
     const { branchId, instrument, prompt, sourceType } = req.body
     const layer = await aiService.requestAIGeneration(projectId, branchId, instrument, prompt, userId, sourceType)

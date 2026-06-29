@@ -10,7 +10,7 @@ function handleError(err: any, res: Response) {
 
 export async function createMergeRequest(req: Request, res: Response) {
   try {
-    const projectId = req.params.projectId
+    const projectId = req.params.projectId as string
     const userId = res.locals.userId as string
     const { sourceBranchId, targetBranchId } = req.body
     const mergeRequest = await mergeService.createMergeRequest(projectId, sourceBranchId, targetBranchId, userId)
@@ -23,7 +23,7 @@ export async function createMergeRequest(req: Request, res: Response) {
 export async function getMergeRequest(req: Request, res: Response) {
   try {
     const userId = res.locals.userId as string
-    const { mergeRequestId } = req.params
+    const mergeRequestId = req.params.mergeRequestId as string
     const mergeRequest = await mergeService.getMergeRequest(mergeRequestId, userId)
     res.status(200).json(mergeRequest)
   } catch (err: any) {
@@ -34,7 +34,8 @@ export async function getMergeRequest(req: Request, res: Response) {
 export async function resolveConflict(req: Request, res: Response) {
   try {
     const userId = res.locals.userId as string
-    const { mergeRequestId, conflictId } = req.params
+    const mergeRequestId = req.params.mergeRequestId as string
+    const conflictId = req.params.conflictId as string
     const { resolution } = req.body
     const conflict = await mergeService.resolveConflict(mergeRequestId, conflictId, resolution, userId)
     res.status(200).json(conflict)
@@ -46,7 +47,7 @@ export async function resolveConflict(req: Request, res: Response) {
 export async function completeMerge(req: Request, res: Response) {
   try {
     const userId = res.locals.userId as string
-    const { mergeRequestId } = req.params
+    const mergeRequestId = req.params.mergeRequestId as string
     const commit = await mergeService.completeMerge(mergeRequestId, userId)
     res.status(200).json(commit)
   } catch (err: any) {
