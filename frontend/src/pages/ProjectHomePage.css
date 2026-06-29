@@ -1,0 +1,793 @@
+/* ─── Page layout ────────────────────────────────── */
+
+.project-home {
+  flex: 1;
+}
+
+.project-home-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 32px 64px;
+}
+
+/* ─── Page header ────────────────────────────────── */
+
+.project-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.project-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.project-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+/* ─── Project meta row ───────────────────────────── */
+
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.project-meta-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.project-meta-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 7.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--surface);
+  position: relative;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.project-meta-avatar + .project-meta-avatar {
+  margin-left: -5px;
+}
+
+.project-meta-dot {
+  color: var(--border);
+  font-size: 12px;
+  padding: 0 8px;
+  user-select: none;
+}
+
+.project-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ink-subtle);
+}
+
+.project-meta-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ink-subtle);
+  font-family: var(--font-mono);
+}
+
+/* ─── "New branch" button ────────────────────────── */
+
+.btn-new-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    border-color 150ms var(--ease-out-quart),
+    color        150ms var(--ease-out-quart),
+    background   150ms var(--ease-out-quart);
+}
+
+.btn-new-branch:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.btn-new-branch:focus-visible {
+  outline: none;
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+/* ─── Branch list container ──────────────────────── */
+
+.branch-list {
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: visible;
+  background: var(--surface);
+}
+
+/* ─── Branch row ─────────────────────────────────── */
+
+.branch-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-muted);
+  cursor: pointer;
+  transition: background 120ms var(--ease-out-quart);
+
+  /* Stagger entrance animation */
+  animation: branch-in 200ms var(--ease-out-quart) calc(var(--row-index, 0) * 35ms) both;
+}
+
+@keyframes branch-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.branch-row:last-child {
+  border-bottom: none;
+}
+
+.branch-row:first-child {
+  border-radius: calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px) 0 0;
+}
+
+.branch-row:last-child {
+  border-radius: 0 0 calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px);
+}
+
+.branch-row:only-child {
+  border-radius: calc(var(--radius-lg) - 1px);
+}
+
+.branch-row:hover,
+.branch-row:focus-within {
+  background: var(--surface-up);
+}
+
+.branch-row:hover .branch-row-actions,
+.branch-row:focus-within .branch-row-actions {
+  opacity: 1;
+}
+
+/* Hide browser's default focus ring on the link; the row highlight
+   communicates focus instead. A visible ring still appears for the
+   action button (which has its own focus-visible style). */
+.branch-name-link:focus {
+  outline: none;
+}
+
+.branch-name-link:focus-visible {
+  outline: none;
+  /* Draw the ring on the ::before overlay so it wraps the entire row */
+}
+
+.branch-name-link:focus-visible::before {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: inherit;
+}
+
+/* ─── Row left: icon + name + pill ──────────────── */
+
+.branch-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 260px;
+  min-width: 0;
+}
+
+.branch-icon {
+  color: var(--ink-subtle);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.branch-name-link {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 400;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Stretch to cover full row — other elements sit above via z-index */
+  position: static;
+}
+
+.branch-name-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.branch-default-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Row center: creator + commits ─────────────── */
+
+.branch-row-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--ink-subtle);
+  font-size: 12px;
+}
+
+.branch-avatar-sm {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 7px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.branch-creator {
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.branch-meta-dot {
+  color: var(--border);
+  flex-shrink: 0;
+}
+
+.branch-commits {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── Row right: time + MR pill + actions ────────── */
+
+.branch-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.branch-time {
+  font-size: 12px;
+  color: var(--ink-subtle);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+
+.branch-mr-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  background: oklch(0.55 0.265 302 / 0.10);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background 120ms, color 120ms;
+}
+
+a.branch-mr-pill:hover {
+  background: oklch(0.55 0.265 302 / 0.18);
+  color: var(--accent-hover);
+}
+
+.branch-row-actions {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 150ms var(--ease-out-quart);
+  position: relative;
+}
+
+.branch-row:has(.branch-action-menu) {
+  z-index: 10;
+}
+
+.branch-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: color 120ms, background 120ms;
+  position: relative; /* sits above the ::before link */
+  z-index: 1;
+}
+
+.branch-action-btn:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.branch-action-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ─── Branch action dropdown menu ────────────────── */
+
+.branch-row-actions {
+  position: relative;
+}
+
+.branch-action-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 150px;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.4);
+  padding: 4px;
+  z-index: 20;
+  animation: menu-enter 120ms var(--ease-out-quart) both;
+}
+
+@keyframes menu-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.branch-action-menu-item {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  border-radius: calc(var(--radius-md) - 4px);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  transition: background 100ms, color 100ms;
+}
+
+.branch-action-menu-item:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.branch-action-menu-delete {
+  color: var(--error);
+}
+
+.branch-action-menu-delete:hover {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+/* ─── Single-branch nudge ────────────────────────── */
+
+.branch-solo-nudge {
+  margin-top: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.branch-solo-nudge-text {
+  font-size: 13px;
+  color: var(--ink-subtle);
+}
+
+.branch-solo-nudge-sub {
+  font-size: 12px;
+  color: var(--ink-subtle);
+  opacity: 0.7;
+}
+
+.branch-solo-nudge-cta {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: color 150ms;
+  margin-top: 2px;
+}
+
+.branch-solo-nudge-cta:hover {
+  color: var(--accent-hover);
+}
+
+.branch-solo-nudge-cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ─── Not found ──────────────────────────────────── */
+
+.project-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 80px 32px;
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+.project-not-found h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin: 0;
+}
+
+.project-not-found p {
+  font-size: 13px;
+  color: var(--ink-subtle);
+  margin: 0;
+}
+
+/* ─── Modal (new branch) — reuse patterns ────────── */
+
+.branch-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(400px, calc(100vw - 32px));
+  height: fit-content;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  box-shadow: 0 24px 64px oklch(0 0 0 / 0.55);
+  animation: branch-modal-enter 200ms var(--ease-out-quart) both;
+}
+
+.branch-modal::backdrop {
+  background: oklch(0 0 0 / 0.45);
+  backdrop-filter: blur(3px);
+  animation: branch-backdrop-fade 200ms ease both;
+}
+
+@keyframes branch-modal-enter {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+@keyframes branch-backdrop-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.branch-modal-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.branch-modal-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+
+.branch-modal-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.branch-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.branch-modal-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+.branch-modal-input {
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-family: var(--font-mono);
+  outline: none;
+  transition:
+    border-color 150ms var(--ease-out-quart),
+    box-shadow   150ms var(--ease-out-quart);
+}
+
+.branch-modal-input::placeholder {
+  color: var(--ink-subtle);
+  font-family: var(--font-sans);
+}
+
+.branch-modal-input:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.branch-modal-input.has-error {
+  border-color: var(--error);
+}
+
+.branch-modal-input.has-error:focus {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px var(--error-ring);
+}
+
+.branch-modal-hint {
+  font-size: 11.5px;
+  color: var(--ink-subtle);
+  padding-left: 1px;
+  line-height: 1.4;
+}
+
+.branch-modal-error {
+  font-size: 12px;
+  color: var(--error);
+  padding-left: 1px;
+}
+
+/* Select wrapper with custom arrow */
+.branch-modal-select-wrap {
+  position: relative;
+}
+
+.branch-modal-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 150ms var(--ease-out-quart),
+    box-shadow   150ms var(--ease-out-quart);
+}
+
+.branch-modal-select:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.branch-modal-select-arrow {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--ink-subtle);
+  display: flex;
+  align-items: center;
+}
+
+/* Modal actions */
+.branch-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-muted);
+}
+
+.branch-modal-cancel {
+  background: none;
+  border: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: color 150ms, background 150ms;
+}
+
+.branch-modal-cancel:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.branch-modal-cancel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.branch-modal-cancel:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.branch-modal-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  min-width: 120px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background  150ms var(--ease-out-quart),
+    box-shadow  150ms var(--ease-out-quart),
+    transform   100ms;
+}
+
+.branch-modal-submit:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px oklch(0.55 0.265 302 / 0.32);
+}
+
+.branch-modal-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.branch-modal-submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.branch-modal-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.branch-modal-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255 255 255 / 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: branch-modal-spin 600ms linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes branch-modal-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Reduced motion ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .branch-row {
+    animation: branch-row-fade 150ms linear both;
+  }
+
+  @keyframes branch-row-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .branch-modal,
+  .branch-modal::backdrop {
+    animation: none;
+  }
+
+  .branch-modal-spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ─── Responsive ─────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .project-home-container {
+    padding: 24px 16px 48px;
+  }
+
+  .project-name {
+    font-size: 18px;
+  }
+
+  /* Hide creator name on narrow viewports, keep avatar */
+  .branch-creator {
+    display: none;
+  }
+
+  /* Hide commit count, keep time */
+  .branch-meta-dot,
+  .branch-commits {
+    display: none;
+  }
+
+  .branch-modal-form {
+    padding: 20px;
+  }
+}

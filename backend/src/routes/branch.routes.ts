@@ -10,5 +10,6 @@ router.use(requireAuth);
 
 router.post('/projects/:projectId/branches', validate(CreateBranchSchema), branchController.createBranch);
 router.get('/projects/:projectId/branches', branchController.listBranches);
+router.delete('/projects/:projectId/branches/:branchId', branchController.deleteBranch);
 
 export default router;

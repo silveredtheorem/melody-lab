@@ -1,0 +1,81 @@
+/* ─── Base ───────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+}
+
+/* ─── Size variants ──────────────────────────────── */
+
+.empty-state-section {
+  padding: 48px 32px;
+}
+
+.empty-state-page {
+  min-height: 54vh;
+  padding: 64px 32px;
+}
+
+/* ─── Icon ───────────────────────────────────────── */
+
+.empty-state-icon {
+  color: var(--ink-subtle);
+  opacity: 0.4;
+  display: flex;
+  margin-bottom: 12px;
+}
+
+/* ─── Text ───────────────────────────────────────── */
+
+.empty-state-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.empty-state-body {
+  font-size: 13px;
+  color: var(--ink-subtle);
+  max-width: 36ch;
+  line-height: 1.55;
+  margin: 2px 0 0;
+  text-wrap: pretty;
+}
+
+/* ─── Action ─────────────────────────────────────── */
+
+.empty-state-action {
+  margin-top: 14px;
+}
+
+/* Back link helper used by several not-found states */
+.empty-state-back-link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 120ms var(--ease-out-quart);
+}
+
+.empty-state-back-link:hover {
+  color: var(--accent-hover);
+}
+
+.empty-state-back-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ─── 404 page wrapper ───────────────────────────── */
+
+.not-found-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

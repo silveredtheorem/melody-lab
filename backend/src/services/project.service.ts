@@ -19,6 +19,7 @@ export async function createProject(name: string, ownerId: string) {
     },
     include: {
       branches: true,
+      members: { include: { user: { select: { id: true, name: true } } } },
     },
   });
 
@@ -35,7 +36,7 @@ export async function getProject(projectId: string, userId: string) {
     where: { id: projectId },
     include: {
       branches: true,
-      members: true,
+      members: { include: { user: { select: { id: true, name: true } } } },
     },
   });
 
@@ -62,7 +63,7 @@ export async function listProjects(userId: string) {
     },
     include: {
       branches: true,
-      members: true,
+      members: { include: { user: { select: { id: true, name: true } } } },
     },
   });
 

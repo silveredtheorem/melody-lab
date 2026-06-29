@@ -49,4 +49,8 @@ export function emitCommitCreated(projectId: string, commit: unknown) {
   io.to(`project:${projectId}`).emit('commit-created', commit)
 }
 
+export function emitLayerUpdated(projectId: string, layer: unknown) {
+  io.to(`project:${projectId}`).emit('layer-updated', layer)
+}
+
 export { io }

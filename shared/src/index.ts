@@ -14,3 +14,5 @@ export * from './schemas/project.schemas';
 export * from './schemas/branch.schemas';
 export * from './schemas/commit.schemas';
 export * from './schemas/storage.schemas';
+export * from './schemas/ai.schemas';
+export * from './schemas/merge.schemas';

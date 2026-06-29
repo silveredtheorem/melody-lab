@@ -28,7 +28,52 @@ export async function createCommit(
     throw new Error('BRANCH_NOT_FOUND');
   }
 
+  if (branch.headCommitId) {
+    const existingLayers = await prisma.layer.findMany({
+      where: { commitId: branch.headCommitId },
+    });
+    const existingByInstrument = new Map(existingLayers.map((l) => [l.instrument, l]));
+    for (const layer of input.layers) {
+      const existing = existingByInstrument.get(layer.instrument);
+      if (existing && existing.s3Key !== layer.s3Key) {
+        const err = new Error('DUPLICATE_INSTRUMENT');
+        (err as any).instrument = layer.instrument;
+        throw err;
+      }
+    }
+  }
+
   const commit = await prisma.$transaction(async (tx) => {
+    const parentLayers = branch.headCommitId
+      ? await tx.layer.findMany({ where: { commitId: branch.headCommitId } })
+      : [];
+
+    const newInstruments = new Set(input.layers.map((l) => l.instrument));
+
+    const carriedLayers = parentLayers
+      .filter((l) => !newInstruments.has(l.instrument))
+      .map((l) => ({
+        s3Key: l.s3Key,
+        instrument: l.instrument,
+        durationMs: l.durationMs,
+        startMs: l.startMs,
+        bpm: l.bpm,
+        keySignature: l.keySignature,
+        sourceType: l.sourceType,
+        createdBy: l.createdBy,
+      }));
+
+    const newLayers = input.layers.map((layer) => ({
+      s3Key: layer.s3Key,
+      instrument: layer.instrument,
+      durationMs: layer.durationMs,
+      startMs: layer.startMs,
+      bpm: layer.bpm,
+      keySignature: layer.keySignature,
+      sourceType: layer.sourceType,
+      createdBy: authorId,
+    }));
+
     const newCommit = await tx.commit.create({
       data: {
         projectId,
@@ -36,16 +81,7 @@ export async function createCommit(
         message: input.message,
         parentId: branch.headCommitId,
         layers: {
-          create: input.layers.map((layer) => ({
-            s3Key: layer.s3Key,
-            instrument: layer.instrument,
-            durationMs: layer.durationMs,
-            startMs: layer.startMs,
-            bpm: layer.bpm,
-            keySignature: layer.keySignature,
-            sourceType: layer.sourceType,
-            createdBy: authorId,
-          })),
+          create: [...carriedLayers, ...newLayers],
         },
       },
       include: {
@@ -113,5 +149,31 @@ export async function getCommitHistory(branchId: string, userId: string) {
     ORDER BY "createdAt" DESC
   `;
 
-  return commits;
+  const authorIds = [...new Set(commits.map((c) => c.authorId as string))];
+  const authors = await prisma.user.findMany({
+    where: { id: { in: authorIds } },
+    select: { id: true, name: true },
+  });
+  const authorMap = Object.fromEntries(authors.map((u) => [u.id, u]));
+
+  return commits.map((c) => ({ ...c, author: authorMap[c.authorId] ?? null }));
+}
+
+export async function getCommit(commitId: string, userId: string) {
+  const commit = await prisma.commit.findUnique({
+    where: { id: commitId },
+    include: {
+      layers: true,
+      author: { select: { id: true, name: true } },
+    },
+  });
+
+  if (!commit) throw new Error('NOT_FOUND');
+
+  const member = await prisma.projectMember.findUnique({
+    where: { projectId_userId: { projectId: commit.projectId, userId } },
+  });
+  if (!member) throw new Error('FORBIDDEN');
+
+  return commit;
 }

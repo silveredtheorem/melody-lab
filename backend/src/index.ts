@@ -8,6 +8,9 @@ import projectRoutes from './routes/project.routes'
 import branchRoutes from './routes/branch.routes'
 import commitRoutes from './routes/commit.routes'
 import storageRoutes from './routes/storage.routes'
+import aiRoutes from './routes/ai.routes'
+import mergeRoutes from './routes/merge.routes'
+import internalRoutes from './routes/internal.routes'
 import { initSocket } from './lib/socket'
 
 // Validate required environment variables
@@ -41,6 +44,9 @@ app.use('/projects', projectRoutes)
 app.use('/', branchRoutes)
 app.use('/', commitRoutes)
 app.use('/storage', storageRoutes)
+app.use('/projects/:projectId/ai', aiRoutes)
+app.use('/projects/:projectId/merge-requests', mergeRoutes)
+app.use('/internal', internalRoutes)
 
 // Error handling middleware (must be last)
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

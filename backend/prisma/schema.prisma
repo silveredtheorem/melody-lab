@@ -114,14 +114,18 @@ enum SourceType {
 }
 
 model RefreshToken {
-  id        String    @id @default(uuid())
-  userId    String
-  tokenHash String    @unique
-  expiresAt DateTime
-  createdAt DateTime  @default(now())
-  revokedAt DateTime?
+  id           String    @id @default(uuid())
+  userId       String
+  tokenHash    String    @unique
+  familyId     String
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  deprecatedAt DateTime?
+  revokedAt    DateTime?
 
   user User @relation(fields: [userId], references: [id])
+
+  @@index([familyId])
 }
 
 model MergeRequest {

@@ -1,0 +1,487 @@
+/* ─── Root & background ──────────────────────────── */
+
+.auth-root {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 48px 24px;
+  background:
+    radial-gradient(
+      ellipse 90% 55% at 50% 20%,
+      oklch(0.55 0.265 302 / 0.07) 0%,
+      transparent 70%
+    ),
+    var(--bg);
+}
+
+/* ─── Animated wave ──────────────────────────────── */
+
+.wave-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--accent);
+}
+
+.wave-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  animation: wave-scroll 55s linear infinite;
+}
+
+@keyframes wave-scroll {
+  to { transform: translateX(-50%); }
+}
+
+/* ─── Center column ──────────────────────────────── */
+
+.auth-center {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 44px;
+}
+
+/* ─── Header: logo + tagline ─────────────────────── */
+
+.auth-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--accent);
+}
+
+.auth-wordmark {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.auth-tagline {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  letter-spacing: 0.01em;
+}
+
+/* ─── Form panel — entrance animation ───────────── */
+
+.auth-form-container {
+  width: 100%;
+}
+
+.auth-form-panel {
+  animation: form-enter 220ms var(--ease-out-quart) both;
+}
+
+@keyframes form-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Form ───────────────────────────────────────── */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-heading {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  text-wrap: balance;
+}
+
+.auth-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Field ──────────────────────────────────────── */
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  letter-spacing: 0.01em;
+}
+
+.auth-input-wrap {
+  position: relative;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 400;
+  outline: none;
+  transition:
+    border-color 150ms var(--ease-out-quart),
+    box-shadow   150ms var(--ease-out-quart);
+}
+
+.auth-input::placeholder {
+  color: var(--ink-subtle);
+}
+
+.auth-input:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.auth-input.has-error {
+  border-color: var(--error);
+}
+
+.auth-input.has-error:focus {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px var(--error-ring);
+}
+
+.auth-input.has-toggle {
+  padding-right: 44px;
+}
+
+.auth-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Password toggle button ─────────────────────── */
+
+.auth-eye-btn {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: var(--ink-subtle);
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: color 150ms;
+  line-height: 0;
+}
+
+.auth-eye-btn:hover {
+  color: var(--ink-muted);
+}
+
+.auth-eye-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ─── Field-level error ──────────────────────────── */
+
+.auth-error-text {
+  font-size: 12px;
+  color: var(--error);
+  padding-left: 2px;
+}
+
+/* ─── Form-level error (e.g. wrong password) ─────── */
+
+.auth-form-error {
+  background: var(--error-soft);
+  border: 1px solid oklch(0.65 0.205 22 / 0.22);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--error);
+  margin-top: 16px;
+}
+
+/* ─── Primary button ─────────────────────────────── */
+
+.auth-btn-primary {
+  width: 100%;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  margin-top: 24px;
+  transition:
+    background  150ms var(--ease-out-quart),
+    box-shadow  150ms var(--ease-out-quart),
+    transform   100ms var(--ease-out-quart);
+}
+
+.auth-btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 20px oklch(0.55 0.265 302 / 0.35);
+}
+
+.auth-btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.auth-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ─── Loading spinner ────────────────────────────── */
+
+.auth-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255 255 255 / 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Secondary links ────────────────────────────── */
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 20px;
+}
+
+.auth-link-text {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color 150ms;
+  line-height: 1;
+}
+
+.auth-link:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.auth-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.auth-link.is-accent {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.auth-link.is-accent:hover:not(:disabled) {
+  color: var(--accent-hover);
+}
+
+.auth-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-link-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ─── Back link (forgot flow) ────────────────────── */
+
+.auth-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-top: 20px;
+  transition: color 150ms;
+  line-height: 1;
+}
+
+.auth-back:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.auth-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ─── Forgot-success state ───────────────────────── */
+
+.auth-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.auth-success-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--success-soft);
+  border: 1px solid oklch(0.72 0.160 155 / 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--success);
+  margin-bottom: 6px;
+  animation: success-pop 380ms var(--ease-out-expo) both;
+}
+
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.auth-success-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.auth-success-body {
+  font-size: 14px;
+  color: var(--ink-muted);
+  max-width: 28ch;
+  text-wrap: pretty;
+  line-height: 1.55;
+}
+
+.auth-success-email {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ─── Screen-reader utility ──────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── Reduced motion ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-svg {
+    animation: none;
+  }
+
+  .auth-form-panel {
+    animation: form-fade 150ms linear both;
+  }
+
+  @keyframes form-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .auth-success-icon {
+    animation: none;
+  }
+}
+
+/* ─── Responsive ─────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .auth-root {
+    padding: 60px 20px 48px;
+    align-items: flex-start;
+  }
+
+  .auth-center {
+    gap: 36px;
+  }
+}

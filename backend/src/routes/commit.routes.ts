@@ -10,5 +10,6 @@ router.use(requireAuth);
 
 router.post('/projects/:projectId/commits', validate(CreateCommitSchema), commitController.createCommit);
 router.get('/projects/:projectId/commits/history/:branchId', commitController.getCommitHistory);
+router.get('/projects/:projectId/commits/:commitId', commitController.getCommit);
 
 export default router;

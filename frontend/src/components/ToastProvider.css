@@ -1,0 +1,167 @@
+/* ─── Container ──────────────────────────────────── */
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column-reverse; /* newest toast appears closest to the corner */
+  gap: 8px;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  max-width: 340px;
+  width: calc(100vw - 40px);
+}
+
+/* ─── Toast item ─────────────────────────────────── */
+
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 4px 16px oklch(0 0 0 / 0.35),
+    0 1px 4px  oklch(0 0 0 / 0.20);
+
+  animation: toast-enter 280ms var(--ease-out-quart) both;
+}
+
+.toast-item.is-exiting {
+  animation: toast-exit 280ms var(--ease-out-quart) both;
+}
+
+/* Type-specific tint + border */
+.toast-item-success {
+  background-color: var(--surface-up);
+  background-image: linear-gradient(var(--success-soft), var(--success-soft));
+  border-color: oklch(0.72 0.160 155 / 0.38);
+}
+
+.toast-item-error {
+  background-color: var(--surface-up);
+  background-image: linear-gradient(var(--error-soft), var(--error-soft));
+  border-color: oklch(0.65 0.205 22 / 0.38);
+}
+
+.toast-item-info {
+  background-color: var(--surface-up);
+  background-image: linear-gradient(var(--accent-soft), var(--accent-soft));
+  border-color: oklch(0.55 0.265 302 / 0.38);
+}
+
+/* ─── Icon ───────────────────────────────────────── */
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.toast-icon-success { color: var(--success); }
+.toast-icon-error   { color: var(--error); }
+.toast-icon-info    { color: var(--accent); }
+
+/* ─── Message ────────────────────────────────────── */
+
+.toast-message {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ─── Dismiss button ─────────────────────────────── */
+
+.toast-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-subtle);
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: color 120ms, background 120ms;
+  margin-top: -1px;
+}
+
+.toast-dismiss:hover {
+  color: var(--ink-muted);
+  background: oklch(1 0 0 / 0.06);
+}
+
+.toast-dismiss:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ─── Enter / exit animations ────────────────────── */
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(110%) scale(0.96);
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-item,
+  .toast-item.is-exiting {
+    animation: toast-fade 180ms linear both;
+  }
+
+  @keyframes toast-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .toast-item.is-exiting {
+    animation: toast-fade-out 180ms linear both;
+  }
+
+  @keyframes toast-fade-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+}
+
+/* ─── Responsive ─────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .toast-container {
+    bottom: 16px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+    width: auto;
+  }
+}
