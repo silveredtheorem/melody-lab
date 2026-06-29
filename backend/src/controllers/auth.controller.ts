@@ -2,11 +2,13 @@ import { Request, Response } from 'express'
 import * as authService from '../services/auth.service.js'
 import { prisma } from '../lib/prisma.js'
 
-const COOKIE_OPTIONS = {
+const isProduction = process.env.NODE_ENV === 'production'
+
+const COOKIE_OPTIONS: import('express').CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  secure: isProduction,
+  sameSite: isProduction ? 'none' : 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 }
 
 export async function register(req: Request, res: Response) {
