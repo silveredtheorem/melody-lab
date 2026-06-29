@@ -20,6 +20,7 @@ let refreshCache: { token: string; at: number } | null = null
 const REFRESH_CACHE_MS = 10_000 // 10 s covers React Strict Mode double-invoke
 
 async function refreshTokens(): Promise<string | null> {
+  if (!useAuthStore.getState().isAuthenticated) return null
   if (refreshCache && Date.now() - refreshCache.at < REFRESH_CACHE_MS) {
     return refreshCache.token
   }

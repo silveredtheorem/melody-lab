@@ -11,6 +11,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setAuth, clearAuth } = useAuthStore()
 
   useEffect(() => {
+    const { isAuthenticated } = useAuthStore.getState()
+    if (!isAuthenticated) {
+      clearAuth()
+      return
+    }
     let cancelled = false
     apiRefresh()
       .then(async (token) => {
