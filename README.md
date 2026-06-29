@@ -9,7 +9,8 @@ melody-lab/
 ├── backend/     Express API + Socket.io + Prisma
 ├── frontend/    React + Vite + Zustand
 ├── shared/      Zod schemas shared across packages
-└── worker/      BullMQ worker for async AI generation
+├── worker/      BullMQ worker for async AI generation
+└── .github/     CI workflows
 ```
 
 ## Tech Stack
@@ -20,15 +21,16 @@ melody-lab/
 - **Storage**: Supabase Storage (S3-compatible) for audio files
 - **Queue**: BullMQ + Redis for async AI generation jobs
 - **Real-time**: Socket.io with Redis adapter for multi-instance support
+- **CI**: GitHub Actions (lint + build on push/PR to main)
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - PostgreSQL
 - Redis
 - Supabase project (for audio storage)
 
-## Setup
+## Local Development
 
 1. Install dependencies:
 ```bash
@@ -45,7 +47,7 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ACCESS_TOKEN_SECRET=your-access-secret
 REFRESH_TOKEN_SECRET=your-refresh-secret
-CORS_ORIGIN=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
 ```
 
 **worker/.env**
@@ -78,6 +80,59 @@ cd worker && npm run dev
 ```
 
 The frontend runs on `http://localhost:5173`, backend on `http://localhost:3000`.
+
+## Deployment
+
+### Frontend (Vercel)
+
+Set these environment variables in Vercel:
+
+| Variable | Value |
+|----------|-------|
+| `VITE_API_URL` | `https://your-backend.up.railway.app` |
+
+The frontend includes a `vercel.json` with SPA rewrites for client-side routing.
+
+### Backend (Railway / Docker)
+
+Set these environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Your PostgreSQL connection string |
+| `REDIS_URL` | Your Redis connection string |
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key |
+| `ACCESS_TOKEN_SECRET` | Random 64+ char secret |
+| `REFRESH_TOKEN_SECRET` | Random 64+ char secret |
+| `FRONTEND_URL` | `https://your-app.vercel.app` |
+| `NODE_ENV` | `production` |
+
+### Worker (Railway / Docker)
+
+Same as backend, plus:
+
+| Variable | Value |
+|----------|-------|
+| `BACKEND_INTERNAL_URL` | `https://your-backend.up.railway.app` |
+| `INTERNAL_SECRET` | Shared secret (also set on backend) |
+
+### Docker
+
+```bash
+# Backend
+docker build -f Dockerfile.backend -t melody-backend .
+
+# Worker
+docker build -f Dockerfile.worker -t melody-worker .
+```
+
+### CI
+
+GitHub Actions runs on every push/PR to main:
+- Installs dependencies
+- Builds shared → backend → frontend
+- Validates the full build pipeline
 
 ## Features
 
@@ -116,6 +171,13 @@ The frontend runs on `http://localhost:5173`, backend on `http://localhost:3000`
 - JWT access tokens + httpOnly refresh cookies with token rotation
 - Refresh token family tracking (detects reuse attacks)
 - Profile update and password change
+
+### Security
+- Helmet security headers
+- Rate limiting on auth endpoints (20 req / 15 min)
+- Internal routes protected with shared secret
+- Storage key validation (regex + length limit)
+- Partitioned cross-site cookies for CHIPS compliance
 
 ## API Routes
 
