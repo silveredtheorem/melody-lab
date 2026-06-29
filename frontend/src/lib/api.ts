@@ -1,5 +1,7 @@
 import { useAuthStore } from '../stores/auth.store'
 
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+
 export class ApiError extends Error {
   status: number
   body: { error: string }
@@ -25,7 +27,7 @@ async function refreshTokens(): Promise<string | null> {
   refreshInFlight = (async () => {
     let res: Response
     try {
-      res = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' })
+      res = await fetch(`${API_BASE}/auth/refresh`, { method: 'POST', credentials: 'include' })
     } catch {
       // Network error or aborted fetch (e.g. page refresh) — don't clear auth,
       // the next page load will retry with the same cookie.
@@ -56,7 +58,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = () => useAuthStore.getState().accessToken
 
   const doFetch = (t: string | null) =>
-    fetch(`/api${path}`, {
+    fetch(`${API_BASE}${path}`, {
       ...init,
       credentials: 'include',
       headers: {
