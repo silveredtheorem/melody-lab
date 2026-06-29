@@ -26,8 +26,9 @@ COPY worker/package.json ./worker/
 RUN npm install --workspace=shared --workspace=backend
 
 # Generate Prisma client (needed for tsc to resolve types)
+# Use --schema directly to avoid requiring DATABASE_URL from prisma.config.ts during build
 WORKDIR /app/backend
-RUN npx prisma generate
+RUN npx prisma generate --schema=prisma/schema.prisma
 
 # Build shared then backend
 RUN npm run build
