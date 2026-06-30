@@ -2,8 +2,19 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppShell } from '../components/AppShellContext'
 import { useToast } from '../components/ToastProvider'
-import { type ApiBranch, type ApiProject, apiCreateBranch, apiDeleteBranch, apiGetProject } from '../lib/api'
-import { relativeTime } from '../lib/utils'
+import {
+  ApiError,
+  type ApiBranch,
+  type ApiMember,
+  type ApiProject,
+  apiAddMember,
+  apiCreateBranch,
+  apiDeleteBranch,
+  apiGetProject,
+  apiRemoveMember,
+} from '../lib/api'
+import { useAuthStore } from '../stores/auth.store'
+import { initials, relativeTime } from '../lib/utils'
 import './ProjectHomePage.css'
 
 // ─── Types ────────────────────────────────────────
@@ -18,6 +29,7 @@ interface Branch {
 interface ProjectMeta {
   id: string
   name: string
+  ownerId: string
   memberCount: number
   defaultBranch: string
 }
@@ -38,6 +50,7 @@ function toProjectMeta(p: ApiProject): ProjectMeta {
   return {
     id: p.id,
     name: p.name,
+    ownerId: p.ownerId,
     memberCount: p.members.length,
     defaultBranch: p.branches.find(b => b.name === 'main')?.name ?? p.branches[0]?.name ?? 'main',
   }
@@ -79,6 +92,17 @@ function ChevronDownIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
+}
+
+function UsersIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   )
 }
@@ -284,18 +308,137 @@ function NewBranchModal({ branches, onClose, onCreate }: NewBranchModalProps) {
   )
 }
 
+// ─── Members modal ────────────────────────────────
+
+interface MembersModalProps {
+  members: ApiMember[]
+  ownerId: string
+  currentUserId: string | undefined
+  onClose: () => void
+  onInvite: (email: string) => Promise<void>
+  onRemove: (userId: string) => Promise<void>
+}
+
+function MembersModal({ members, ownerId, currentUserId, onClose, onInvite, onRemove }: MembersModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [email, setEmail] = useState('')
+  const [emailErr, setEmailErr] = useState('')
+  const [inviting, setInviting] = useState(false)
+  const [removingId, setRemovingId] = useState<string | null>(null)
+
+  const emailId = useId()
+  const isOwner = currentUserId === ownerId
+
+  const onCloseRef = useRef(onClose)
+  useLayoutEffect(() => { onCloseRef.current = onClose })
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    dialog.showModal()
+    function handleClose() { onCloseRef.current() }
+    dialog.addEventListener('close', handleClose)
+    return () => dialog.removeEventListener('close', handleClose)
+  }, [])
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault()
+    const trimmed = email.trim()
+    if (!trimmed) { setEmailErr('enter an email address'); return }
+    setEmailErr('')
+    setInviting(true)
+    try {
+      await onInvite(trimmed)
+      setEmail('')
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.body.error : 'failed to add member — try again'
+      setEmailErr(msg)
+    } finally {
+      setInviting(false)
+    }
+  }
+
+  async function handleRemove(userId: string) {
+    setRemovingId(userId)
+    try {
+      await onRemove(userId)
+    } finally {
+      setRemovingId(null)
+    }
+  }
+
+  return (
+    <dialog ref={dialogRef} className="members-modal" aria-labelledby="members-modal-title">
+      <div className="members-modal-inner">
+        <h2 id="members-modal-title" className="members-modal-title">project members</h2>
+
+        <ul className="members-list" aria-label="members">
+          {members.map(m => (
+            <li key={m.id} className="members-list-row">
+              <span className="members-list-avatar" aria-hidden="true">{initials(m.user.name)}</span>
+              <span className="members-list-name">{m.user.name}</span>
+              <span className="members-list-role">{m.role === 'OWNER' ? 'owner' : 'collaborator'}</span>
+              {isOwner && m.role !== 'OWNER' && (
+                <button
+                  type="button"
+                  className="members-list-remove"
+                  onClick={() => handleRemove(m.userId)}
+                  disabled={removingId === m.userId}
+                  aria-label={`remove ${m.user.name}`}
+                >
+                  {removingId === m.userId ? '…' : '×'}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        <form className="members-invite-form" onSubmit={handleInvite} noValidate>
+          <div className="members-invite-field">
+            <label htmlFor={emailId} className="branch-modal-label">invite by email</label>
+            <input
+              id={emailId}
+              type="email"
+              className={`branch-modal-input${emailErr ? ' has-error' : ''}`}
+              placeholder="someone@band.com"
+              value={email}
+              onChange={e => { setEmail(e.target.value); if (emailErr) setEmailErr('') }}
+              autoComplete="off"
+              disabled={inviting}
+            />
+            {emailErr && <span className="branch-modal-error" role="alert">{emailErr}</span>}
+          </div>
+          <button type="submit" className="branch-modal-submit" disabled={inviting}>
+            {inviting && <span className="branch-modal-spinner" aria-hidden="true" />}
+            {inviting ? 'inviting…' : 'invite'}
+          </button>
+        </form>
+
+        <div className="branch-modal-actions">
+          <button type="button" className="branch-modal-cancel" onClick={() => dialogRef.current?.close()}>
+            close
+          </button>
+        </div>
+      </div>
+    </dialog>
+  )
+}
+
 // ─── Project home page ────────────────────────────
 
 export function ProjectHomePage() {
   const { projectId } = useParams<{ projectId: string }>()
   const { setBreadcrumb } = useAppShell()
   const { toast } = useToast()
+  const currentUserId = useAuthStore(s => s.user?.id)
 
   const [project, setProject] = useState<ProjectMeta | null>(null)
+  const [members, setMembers] = useState<ApiMember[]>([])
   const [branches, setBranches] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [membersOpen, setMembersOpen] = useState(false)
 
   useEffect(() => {
     if (!projectId) return
@@ -306,6 +449,7 @@ export function ProjectHomePage() {
         if (cancelled) return
         setProject(toProjectMeta(data))
         setBranches(data.branches.map(toBranch))
+        setMembers(data.members)
       } catch {
         if (cancelled) return
         setNotFound(true)
@@ -371,6 +515,24 @@ export function ProjectHomePage() {
     toast.success(`branch "${name}" created`)
   }
 
+  async function handleInvite(email: string) {
+    const member = await apiAddMember(projectId!, email)
+    setMembers(prev => [...prev, member])
+    setProject(prev => prev ? { ...prev, memberCount: prev.memberCount + 1 } : prev)
+    toast.success(`${member.user.name} added to the project`)
+  }
+
+  async function handleRemoveMember(userId: string) {
+    try {
+      await apiRemoveMember(projectId!, userId)
+      setMembers(prev => prev.filter(m => m.userId !== userId))
+      setProject(prev => prev ? { ...prev, memberCount: prev.memberCount - 1 } : prev)
+      toast.success('member removed')
+    } catch {
+      toast.error('failed to remove member')
+    }
+  }
+
   return (
     <div className="project-home">
       <div className="project-home-container">
@@ -380,9 +542,9 @@ export function ProjectHomePage() {
             <h1 className="project-name">{project.name}</h1>
 
             <div className="project-meta">
-              <span className="project-meta-badge">
+              <button className="project-meta-badge project-meta-badge-btn" onClick={() => setMembersOpen(true)}>
                 {project.memberCount} {project.memberCount === 1 ? 'member' : 'members'}
-              </span>
+              </button>
 
               <span className="project-meta-dot" aria-hidden="true">·</span>
 
@@ -393,10 +555,16 @@ export function ProjectHomePage() {
             </div>
           </div>
 
-          <button className="btn-new-branch" onClick={() => setModalOpen(true)}>
-            <PlusIcon />
-            new branch
-          </button>
+          <div className="project-header-actions">
+            <button className="btn-invite-members" onClick={() => setMembersOpen(true)}>
+              <UsersIcon />
+              members
+            </button>
+            <button className="btn-new-branch" onClick={() => setModalOpen(true)}>
+              <PlusIcon />
+              new branch
+            </button>
+          </div>
         </header>
 
         <ul className="branch-list" aria-label="branches">
@@ -427,6 +595,17 @@ export function ProjectHomePage() {
           branches={branches}
           onClose={() => setModalOpen(false)}
           onCreate={handleCreate}
+        />
+      )}
+
+      {membersOpen && (
+        <MembersModal
+          members={members}
+          ownerId={project.ownerId}
+          currentUserId={currentUserId}
+          onClose={() => setMembersOpen(false)}
+          onInvite={handleInvite}
+          onRemove={handleRemoveMember}
         />
       )}
     </div>

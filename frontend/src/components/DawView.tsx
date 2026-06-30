@@ -136,9 +136,10 @@ export function DawView({ projectId, branchId, headCommitId, onCommitCreated }: 
     return audioCtxRef.current
   }
 
-  const loadLayers = useCallback(async () => {
+  const loadLayers = useCallback(async (signal: AbortSignal) => {
     try {
       const commit = await apiGetCommit(projectId, headCommitId)
+      if (signal.aborted) return
       const ls = commit.layers ?? []
       setLayers(ls)
       layersRef.current = ls
@@ -156,25 +157,28 @@ export function DawView({ projectId, branchId, headCommitId, onCommitCreated }: 
           if (buffersRef.current.has(layer.id)) return
           try {
             const { url } = await apiGetPlaybackUrl(layer.s3Key)
-            const res = await fetch(url)
+            const res = await fetch(url, { signal })
             const ab = await res.arrayBuffer()
             const buf = await ctx.decodeAudioData(ab)
+            if (signal.aborted) return
             buffersRef.current.set(layer.id, buf)
           } catch (e) {
-            console.warn('layer load failed', layer.id, e)
+            if (!signal.aborted) console.warn('layer load failed', layer.id, e)
           }
         }))
       }
-      setBuffersReady(true)
+      if (!signal.aborted) setBuffersReady(true)
     } catch (e) {
-      console.error('DawView load error', e)
+      if (!signal.aborted) console.error('DawView load error', e)
     } finally {
-      setLoading(false)
+      if (!signal.aborted) setLoading(false)
     }
   }, [projectId, headCommitId])
 
   useEffect(() => {
-    loadLayers()
+    const controller = new AbortController()
+    loadLayers(controller.signal)
+    return () => controller.abort()
   }, [loadLayers])
 
   // Real-time socket events

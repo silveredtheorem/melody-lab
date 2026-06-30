@@ -44,6 +44,8 @@ model ProjectMember {
   user      User    @relation(fields: [userId], references: [id])
 
   @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
 }
 
 enum ProjectMemberRole {
@@ -65,6 +67,7 @@ model Branch {
   targetMergeRequests MergeRequest[] @relation("TargetBranch")
 
   @@unique([projectId, name])
+  @@index([projectId])
 }
 
 model Commit {
@@ -86,6 +89,10 @@ model Commit {
 
   branchHeads             Branch[]       @relation("BranchHead")
   mergeRequestsAsAncestor MergeRequest[] @relation("CommonAncestor")
+
+  @@index([projectId])
+  @@index([authorId])
+  @@index([parentId])
 }
 
 model Layer {
@@ -106,6 +113,8 @@ model Layer {
 
   ourConflicts   MergeConflict[] @relation("OurLayer")
   theirConflicts MergeConflict[] @relation("TheirLayer")
+
+  @@index([commitId])
 }
 
 enum SourceType {

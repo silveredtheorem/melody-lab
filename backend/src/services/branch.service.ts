@@ -57,6 +57,11 @@ export async function deleteBranch(projectId: string, branchId: string, userId: 
   if (!branch || branch.projectId !== projectId) throw new Error('BRANCH_NOT_FOUND')
   if (branch.name === 'main') throw new Error('CANNOT_DELETE_DEFAULT')
 
+  const referencingMergeRequest = await prisma.mergeRequest.findFirst({
+    where: { OR: [{ sourceBranchId: branchId }, { targetBranchId: branchId }] },
+  })
+  if (referencingMergeRequest) throw new Error('BRANCH_HAS_MERGE_REQUESTS')
+
   await prisma.branch.delete({ where: { id: branchId } })
 }
 

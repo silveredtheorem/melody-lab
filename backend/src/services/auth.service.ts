@@ -6,6 +6,7 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../lib/jw
 const SALT_ROUNDS = 12
 
 export async function register(email: string, password: string, name: string) {
+  email = email.trim().toLowerCase()
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) throw new Error('EMAIL_TAKEN')
 
@@ -23,6 +24,7 @@ export async function register(email: string, password: string, name: string) {
 }
 
 export async function login(email: string, password: string) {
+  email = email.trim().toLowerCase()
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) throw new Error('INVALID_CREDENTIALS')
 
@@ -89,14 +91,20 @@ export async function refresh(rawRefreshToken: string) {
   }
 
   // ── Normal rotation ──────────────────────────────────────
-  await prisma.refreshToken.update({
-    where: { tokenHash },
-    data: { deprecatedAt: new Date() },
-  })
-
   const newAccessToken = signAccessToken(payload.userId)
   const newRefreshToken = signRefreshToken(payload.userId)
-  await storeRefreshToken(payload.userId, newRefreshToken, stored.familyId)
+  const newTokenHash = hashToken(newRefreshToken)
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+
+  await prisma.$transaction([
+    prisma.refreshToken.update({
+      where: { tokenHash },
+      data: { deprecatedAt: new Date() },
+    }),
+    prisma.refreshToken.create({
+      data: { userId: payload.userId, tokenHash: newTokenHash, familyId: stored.familyId, expiresAt },
+    }),
+  ])
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken }
 }

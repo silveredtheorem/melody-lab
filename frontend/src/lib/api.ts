@@ -74,6 +74,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (res.status === 401 && token()) {
     const newToken = await refreshTokens()
     if (!newToken) {
+      sessionStorage.setItem('session_expired', '1')
       window.location.replace('/auth')
       throw new ApiError(401, { error: 'Session expired' })
     }
@@ -192,6 +193,17 @@ export async function apiCreateProject(name: string) {
 
 export async function apiGetProject(projectId: string) {
   return apiFetch<ApiProject>(`/projects/${projectId}`)
+}
+
+export async function apiAddMember(projectId: string, email: string) {
+  return apiFetch<ApiMember>(`/projects/${projectId}/members`, {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+}
+
+export async function apiRemoveMember(projectId: string, userId: string) {
+  return apiFetch<void>(`/projects/${projectId}/members/${userId}`, { method: 'DELETE' })
 }
 
 // ─── Branches ─────────────────────────────────────────

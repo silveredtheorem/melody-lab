@@ -87,6 +87,25 @@
   color: var(--ink-subtle);
 }
 
+.project-meta-badge-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 120ms;
+}
+
+.project-meta-badge-btn:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.project-meta-badge-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .project-meta-branch {
   display: inline-flex;
   align-items: center;
@@ -94,6 +113,48 @@
   font-size: 12px;
   color: var(--ink-subtle);
   font-family: var(--font-mono);
+}
+
+/* ─── Header actions group ────────────────────────── */
+
+.project-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── "Members" button ───────────────────────────── */
+
+.btn-invite-members {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 150ms var(--ease-out-quart),
+    color        150ms var(--ease-out-quart),
+    background   150ms var(--ease-out-quart);
+}
+
+.btn-invite-members:hover {
+  border-color: var(--ink-subtle);
+  color: var(--ink);
+  background: var(--surface-up);
+}
+
+.btn-invite-members:focus-visible {
+  outline: none;
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 /* ─── "New branch" button ────────────────────────── */
@@ -789,5 +850,149 @@ a.branch-mr-pill:hover {
 
   .branch-modal-form {
     padding: 20px;
+  }
+}
+
+/* ─── Members modal ──────────────────────────────── */
+
+.members-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(420px, calc(100vw - 32px));
+  height: fit-content;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0;
+  box-shadow: 0 24px 64px oklch(0 0 0 / 0.55);
+  animation: branch-modal-enter 200ms var(--ease-out-quart) both;
+}
+
+.members-modal::backdrop {
+  background: oklch(0 0 0 / 0.45);
+  backdrop-filter: blur(3px);
+  animation: branch-backdrop-fade 200ms ease both;
+}
+
+.members-modal-inner {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.members-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin: 0 0 16px;
+}
+
+/* ─── Members list ────────────────────────────────── */
+
+.members-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 18px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.members-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.members-list-row:hover {
+  background: var(--surface);
+}
+
+.members-list-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.members-list-name {
+  font-size: 13px;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.members-list-role {
+  font-size: 11px;
+  color: var(--ink-subtle);
+  text-transform: lowercase;
+  flex-shrink: 0;
+}
+
+.members-list-remove {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  color: var(--ink-subtle);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 120ms, background 120ms;
+}
+
+.members-list-remove:hover {
+  color: var(--error);
+  background: var(--error-soft);
+}
+
+.members-list-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Invite form ─────────────────────────────────── */
+
+.members-invite-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-muted);
+}
+
+.members-invite-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .members-modal,
+  .members-modal::backdrop {
+    animation: none;
   }
 }

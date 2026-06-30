@@ -97,9 +97,13 @@ export async function createCommit(
     return newCommit;
   });
 
-  emitCommitCreated(projectId, commit)
-  for (const layer of commit.layers) {
-    emitLayerAdded(projectId, layer)
+  try {
+    emitCommitCreated(projectId, commit);
+    for (const layer of commit.layers) {
+      emitLayerAdded(projectId, layer);
+    }
+  } catch (err) {
+    console.error('Failed to emit commit socket events', err);
   }
 
   return commit;

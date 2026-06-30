@@ -1,7 +1,8 @@
-import { useState, useId } from 'react'
+import { useState, useId, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError, apiLogin, apiRegister } from '../lib/api'
 import { useAuthStore } from '../stores/auth.store'
+import { useToast } from '../components/ToastProvider'
 import './AuthPage.css'
 
 type Mode = 'login' | 'signup' | 'forgot' | 'forgot-success'
@@ -373,6 +374,7 @@ function ForgotSuccess({ email, onBack }: { email: string; onBack: () => void })
 export function AuthPage() {
   const { setAuth } = useAuthStore()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [mode, setMode] = useState<Mode>('login')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Errors>({})
@@ -392,6 +394,13 @@ export function AuthPage() {
   const passwordId  = useId()
   const confirmId   = useId()
   const forgotId    = useId()
+
+  useEffect(() => {
+    if (sessionStorage.getItem('session_expired')) {
+      sessionStorage.removeItem('session_expired')
+      toast.info('Your session expired — please log in again')
+    }
+  }, [toast])
 
   function clearErr(field: keyof Errors) {
     setErrors(prev => {

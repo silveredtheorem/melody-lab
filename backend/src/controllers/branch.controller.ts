@@ -36,6 +36,9 @@ export async function deleteBranch(req: Request, res: Response) {
     if (err.message === 'CANNOT_DELETE_DEFAULT') {
       return res.status(422).json({ error: 'Cannot delete the default branch' });
     }
+    if (err.message === 'BRANCH_HAS_MERGE_REQUESTS') {
+      return res.status(409).json({ error: 'Cannot delete a branch with associated merge requests' });
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 }
